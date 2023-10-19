@@ -1,0 +1,9 @@
+server:
+  port: 8888  # 端口
+  servlet:
+    context-path : /hackathon  # 项目路径-上下文路径
+spring:
+#  profiles:
+#    active: test
+  application:
+    name: io-hackathon  # 应用名称
