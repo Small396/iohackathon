@@ -1,0 +1,9 @@
+spring:
+  config: # 2.3版本之后
+    activate:
+      on-profile: dev
+  application:
+    name: io-hackathon
+logging:
+  file:
+    path: ./log/

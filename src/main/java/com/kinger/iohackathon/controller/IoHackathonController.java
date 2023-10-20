@@ -11,13 +11,13 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @RequestMapping("/mock")
 @Api(tags = "操作功能")
 public class IoHackathonController {
-    @GetMapping(value ="/hello/{name}", produces = "application/json;charset=UTF-8")
+    @GetMapping(value = "/hello/{name}", produces = "application/json;charset=UTF-8")
     @ApiOperation(value = "测试全局异常捕获")
-    public ResultInfo view(@PathVariable("name") String name) throws Exception{
+    public ResultInfo view(@PathVariable("name") String name) throws Exception {
         System.out.println("view=================>>>:" + name);
         if ("test".equals(name)) {
             throw new Exception("test");
         }
-        return  ResultInfo.ok("hello " , name);
+        return ResultInfo.ok("hello ", name);
     }
 }
