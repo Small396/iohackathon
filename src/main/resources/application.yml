@@ -3,7 +3,10 @@ server:
   servlet:
     context-path : /hackathon  # 项目路径-上下文路径
 spring:
-#  profiles:
-#    active: test
+  # 2.4版本之前spring.profiles.active = dev
+#  config: # 2.4版本之后
+#    activate:
+#      on-profile:
+#        - dev
   application:
     name: io-hackathon  # 应用名称

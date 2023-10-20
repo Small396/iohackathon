@@ -1,0 +1,11 @@
+server:
+  port: 6666  # 端口
+  servlet:
+    context-path : /hackathon  # 项目路径-上下文路径
+spring:
+  config: # 2.3版本之后
+    activate:
+      on-profile: dev
+    # 环境配置：多配置  --spring.profiles.active=dev
+  application:
+    name: io-hackathon  # 应用名称

@@ -2,6 +2,7 @@ package com.kinger.iohackathon.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -12,13 +13,14 @@ import springfox.documentation.spring.web.plugins.Docket;
 
 
 @Configuration
+@Profile({"dev","test"})
 public class SwaggerConfig {
     @Bean
     public Docket getDocket(){
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(swaggerDemoApiInfo())
                 .select().apis(RequestHandlerSelectors.basePackage("com.kinger.iohackathon.controller")) // 扫描的包
-                .paths(PathSelectors.ant("/mock/**"))   // 过滤出指定的路径，在swagger-ui.html上进行展示
+                .paths(PathSelectors.ant("/mock/**")) // .paths(PathSelectors.ant("/kinger/**"))  // 过滤出指定的路径，在swagger-ui.html上进行展示
                 .build();
     }
     private ApiInfo swaggerDemoApiInfo(){
