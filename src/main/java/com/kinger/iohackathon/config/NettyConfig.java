@@ -9,8 +9,11 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "netty")
 public class NettyConfig {
 
-    private int port;
+    private  int port;
 
-    private int maxFrameLength;
+    private  int maxFrameLength;
+
+    private  int nThreads;
+    private  int soBacklog;
 
 }

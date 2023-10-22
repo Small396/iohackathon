@@ -1,5 +1,6 @@
 package com.kinger.iohackathon.listener;
 
+import com.kinger.iohackathon.config.NettyConfig;
 import com.kinger.iohackathon.httpServerHandler.HTTPServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -8,6 +9,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -16,17 +18,18 @@ import javax.annotation.PostConstruct;
 @Component
 public class NettyServer {
 
-
+    @Autowired
+    private  NettyConfig nettyConfig;
 
     @PostConstruct
-    public static void netty() {
+    public void netty() {
         HTTPServerHandler handler = new HTTPServerHandler();
         // 1. 创建 BossGroup 线程池 和 WorkerGroup 线程池, 其中维护 NioEventLoop 线程
         //     NioEventLoop 线程中执行无限循环操作
 
         // BossGroup 线程池 : 负责客户端的连接
         // 指定线程个数 : 客户端个数很少, 不用很多线程维护, 这里指定线程池中线程个数为 1
-        EventLoopGroup bossGroup = new NioEventLoopGroup(1000);
+        EventLoopGroup bossGroup = new NioEventLoopGroup(nettyConfig.getNThreads());
         // WorkerGroup 线程池 : 负责客户端连接的数据读写
 
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -35,7 +38,7 @@ public class NettyServer {
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.group(bossGroup, workerGroup) // 设置 主从 线程组 , 分别对应 主 Reactor 和 从 Reactor
                 .channel(NioServerSocketChannel.class)  // 设置 NIO 网络套接字通道类型
-                .option(ChannelOption.SO_BACKLOG, 1000)  // 设置线程队列维护的连接个数
+                .option(ChannelOption.SO_BACKLOG, nettyConfig.getSoBacklog())  // 设置线程队列维护的连接个数
                 .childOption(ChannelOption.SO_KEEPALIVE, true)  // 设置连接状态行为, 保持连接状态
                 .childHandler(
                         // 为 WorkerGroup 线程池对应的 NioEventLoop 设置对应的事件 处理器 Handler
@@ -63,8 +66,8 @@ public class NettyServer {
         ChannelFuture channelFuture = null;
         try {
             // 绑定本地端口, 进行同步操作 , 并返回 ChannelFuture
-            channelFuture = bootstrap.bind(9999).sync();
-            System.out.println("HTTP 服务器开始监听 8888 端口 ...");
+            channelFuture = bootstrap.bind(nettyConfig.getPort()).sync();
+            System.out.println(String.format("HTTP 服务器开始监听 %s 端口 ...", nettyConfig.getPort()));
             // 关闭通道 , 开始监听操作
             channelFuture.channel().closeFuture().sync();
         } catch (InterruptedException e) {
