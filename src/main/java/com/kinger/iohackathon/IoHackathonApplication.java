@@ -11,7 +11,7 @@ import java.io.UnsupportedEncodingException;
 @EnableSwagger2
 @SpringBootApplication
 public class IoHackathonApplication implements CommandLineRunner {
-    public static void main(String[] args) throws UnsupportedEncodingException {
+    public static void main(String[] args) {
         SpringApplication.run(IoHackathonApplication.class, args);
     }
 
