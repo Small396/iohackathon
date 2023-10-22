@@ -9,7 +9,6 @@ public class OperateCommonUtils {
 
     public static boolean set(String key, byte[] value) {
         cacheHashMap.put(key, value);
-        System.out.println(cacheHashMap.toString());
         return true;
     }
 

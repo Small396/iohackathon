@@ -13,6 +13,6 @@ spring:
 
 netty:
   port: 9999
-  nThreads: 1000
+  nThreads: 5000
   maxFrameLength: 10485760
   soBacklog: 1024
