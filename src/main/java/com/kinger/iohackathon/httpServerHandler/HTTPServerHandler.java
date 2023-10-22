@@ -23,8 +23,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * HTTP 服务器处理类
- * SimpleChannelInboundHandler 是 ChannelInboundHandlerAdapter 子类
- * HttpObject 指的是服务器端与客户端处理数据时的数据类型
+ * SimpleChannelInboundHandler 是 SimpleChannelInboundHandler 子类
+ * FullHttpRequest 指的是服务器端与客户端处理数据时的数据类型
  */
 public class HTTPServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     @Override
@@ -32,18 +32,22 @@ public class HTTPServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         super.channelActive(ctx);
         System.out.println("Connected!");
     }
+
     public static AtomicLong count = new AtomicLong(0);
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
-        System.out.println(String.format("count===>>> %s 客户端请求数据 ... ", count.incrementAndGet()));
         JSONObject obj = new JSONObject();
-        obj.put("ip", ctx.channel().remoteAddress().toString());
+        String [] ipArray = ctx.channel().remoteAddress().toString().split(":");
+        obj.put("ip", ipArray[0]);
+        obj.put("port", ipArray[1]);
+        obj.put("count",count.incrementAndGet());
         System.out.println("metadata" + ctx.channel().metadata());
         obj.put("create_time", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         System.out.println(msg.toString());
 
-        if(msg instanceof FullHttpRequest){ //判断该  HttpObject msg 参数是否是 Http 请求
-            FullHttpRequest http = (FullHttpRequest)msg;
+        if (msg instanceof FullHttpRequest) { //判断该  HttpObject msg 参数是否是 Http 请求
+            FullHttpRequest http = (FullHttpRequest) msg;
 
             System.out.println("Recieved request!");
             System.out.println("HTTP Method: " + msg.getMethod());
@@ -56,30 +60,27 @@ public class HTTPServerHandler extends SimpleChannelInboundHandler<FullHttpReque
             System.out.println("POST/PUT length: " + data.readableBytes());
             System.out.println("POST/PUT as string: ");
             System.out.println("-- DATA --");
-            DataModel dataModel = JSONObject.parseObject(data.toString(StandardCharsets.UTF_8),  DataModel.class);
+            DataModel dataModel = JSONObject.parseObject(data.toString(StandardCharsets.UTF_8), DataModel.class);
 
-            System.out.println("dataHashMap"+ dataModel.toString());
+            System.out.println("dataHashMap" + dataModel.toString());
             System.out.println();
             System.out.println("-- DATA END --");
-            System.out.println("url====>>"+http.uri());
+            System.out.println("url====>>" + http.uri());
             System.out.println("mothod====>>" + http.method().toString());
             System.out.println(ctx.channel().remoteAddress() + " 客户端请求数据 ... ");
             ByteBuf byteBuf = null;
             if (msg.getUri().endsWith("/set")) {
-                System.out.println("key====>>" + Arrays.toString(dataModel.getKey()));
-                System.out.println("value====>>" + Arrays.toString(dataModel.getValue()));
                 boolean flag = OperateCommonUtils.set(new String(dataModel.getKey(), "UTF-8"), dataModel.getValue());
                 byteBuf = Unpooled.copiedBuffer(JSON.toJSONBytes(OperateResult.ok(flag)));
-                System.out.println("flag=====>" + flag);
             } else if (msg.getUri().endsWith("/get")) {
-                byte [] value = OperateCommonUtils.get(new String(dataModel.getKey(), "UTF-8"));
+                byte[] value = OperateCommonUtils.get(new String(dataModel.getKey(), "UTF-8"));
                 byteBuf = Unpooled.copiedBuffer(JSON.toJSONBytes(OperateResult.ok(value == null ? Arrays.toString("null".getBytes("UTF-8")) : Arrays.toString(value))));
-            } else if (msg.getUri().endsWith("/del")){
-                byte [] value = OperateCommonUtils.del(new String(dataModel.getKey(), "UTF-8"));
+            } else if (msg.getUri().endsWith("/del")) {
+                byte[] value = OperateCommonUtils.del(new String(dataModel.getKey(), "UTF-8"));
                 byteBuf = Unpooled.copiedBuffer(JSON.toJSONBytes(OperateResult.ok(value == null ? Arrays.toString("null".getBytes("UTF-8")) : Arrays.toString(value))));
             } else if (msg.getUri().endsWith("/hasKey")) {
-               boolean flag =  OperateCommonUtils.hasKey(new String(dataModel.getKey(), "UTF-8"));
-               byteBuf = Unpooled.copiedBuffer(JSON.toJSONBytes(OperateResult.ok(Arrays.toString(String.valueOf(flag).getBytes("UTF-8")))));
+                boolean flag = OperateCommonUtils.hasKey(new String(dataModel.getKey(), "UTF-8"));
+                byteBuf = Unpooled.copiedBuffer(JSON.toJSONBytes(OperateResult.ok(Arrays.toString(String.valueOf(flag).getBytes("UTF-8")))));
             }
 
             // 准备给客户端浏览器发送的数据
@@ -98,16 +99,25 @@ public class HTTPServerHandler extends SimpleChannelInboundHandler<FullHttpReque
 
             // 写出 HTTP 数据
             ctx.writeAndFlush(defaultFullHttpResponse);
-            insert(obj, "netty");
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        insert(obj, "netty");
+                    } catch (Exception e) {
+                    }
+                }
+            }).start();
         } else {
             insert(obj, "netty_http");
         }
 
     }
 
-    public void insert(JSONObject obj, String table) throws SQLException {
+    public void  insert(JSONObject obj, String table) throws SQLException {
+        System.out.println("insert=====>>>>");
         List<Entity> list = new ArrayList<>();
-        Entity entity = Entity.create(table).addFieldNames("ip", "create_time");
+        Entity entity = Entity.create(table).addFieldNames("ip", "port","count", "create_time");
         list.add(entity);
         for (Map.Entry<String, Object> entry : obj.entrySet()) {
             System.out.println(entry.getKey() + ":" + entry.getValue());
