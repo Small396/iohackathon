@@ -65,21 +65,20 @@ public class HTTPServerHandler extends SimpleChannelInboundHandler<FullHttpReque
             System.out.println("mothod====>>" + http.method().toString());
             System.out.println(ctx.channel().remoteAddress() + " 客户端请求数据 ... ");
             ByteBuf byteBuf = null;
-            if (msg.getUri().startsWith("/set")) {
+            if (msg.getUri().endsWith("/set")) {
                 System.out.println("key====>>" + Arrays.toString(dataModel.getKey()));
                 System.out.println("value====>>" + Arrays.toString(dataModel.getValue()));
                 boolean flag = OperateCommonUtils.set(new String(dataModel.getKey(), "UTF-8"), dataModel.getValue());
                 byteBuf = Unpooled.copiedBuffer(JSON.toJSONBytes(OperateResult.ok(flag)));
                 System.out.println("flag=====>" + flag);
-            } else if (msg.getUri().startsWith("/get")) {
+            } else if (msg.getUri().endsWith("/get")) {
                 byte [] value = OperateCommonUtils.get(new String(dataModel.getKey(), "UTF-8"));
                 byteBuf = Unpooled.copiedBuffer(JSON.toJSONBytes(OperateResult.ok(value == null ? Arrays.toString("null".getBytes("UTF-8")) : Arrays.toString(value))));
-            } else if (msg.getUri().startsWith("/del")){
+            } else if (msg.getUri().endsWith("/del")){
                 byte [] value = OperateCommonUtils.del(new String(dataModel.getKey(), "UTF-8"));
                 byteBuf = Unpooled.copiedBuffer(JSON.toJSONBytes(OperateResult.ok(value == null ? Arrays.toString("null".getBytes("UTF-8")) : Arrays.toString(value))));
-            } else if (msg.getUri().startsWith("/hasKey")) {
+            } else if (msg.getUri().endsWith("/hasKey")) {
                boolean flag =  OperateCommonUtils.hasKey(new String(dataModel.getKey(), "UTF-8"));
-
                byteBuf = Unpooled.copiedBuffer(JSON.toJSONBytes(OperateResult.ok(Arrays.toString(String.valueOf(flag).getBytes("UTF-8")))));
             }
 
@@ -107,7 +106,6 @@ public class HTTPServerHandler extends SimpleChannelInboundHandler<FullHttpReque
     }
 
     public void insert(JSONObject obj, String table) throws SQLException {
-        System.out.println("插入数据：" + obj);
         List<Entity> list = new ArrayList<>();
         Entity entity = Entity.create(table).addFieldNames("ip", "create_time");
         list.add(entity);
@@ -115,7 +113,6 @@ public class HTTPServerHandler extends SimpleChannelInboundHandler<FullHttpReque
             System.out.println(entry.getKey() + ":" + entry.getValue());
             entity.set(entry.getKey(), entry.getValue());
         }
-        System.out.println("插入数据：" + list.toString());
         DataSource dataSource = new SimpleDataSource("jdbc:mysql://192.168.230.129:3306/test?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&autoReconnect=true&useSSL=false", "root",
                 "Small@521", "com.mysql.jdbc.Driver");
         int[] insert = Db.use(dataSource).insert(list);
