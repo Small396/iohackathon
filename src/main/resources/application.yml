@@ -10,3 +10,6 @@ spring:
 #        - dev
   application:
     name: io-hackathon  # 应用名称
+
+netty:
+  port: 9999

@@ -1,4 +1,4 @@
-package com.kinger.iohackathon;
+package com.kinger.iohackathon.listener;
 
 import com.kinger.iohackathon.httpServerHandler.HTTPServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
@@ -8,32 +8,17 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import org.springframework.stereotype.Component;
 
-import java.io.UnsupportedEncodingException;
+import javax.annotation.PostConstruct;
 
 
-@EnableSwagger2
-@SpringBootApplication
-public class IoHackathonApplication implements CommandLineRunner {
-    public static void main(String[] args) throws UnsupportedEncodingException {
-        SpringApplication.run(IoHackathonApplication.class, args);
-//        netty();
+@Component
+public class NettyServer {
 
 
-    }
 
-    @Override
-    public void run(String... args) throws Exception {
-
-    }
-
-    /**
-     * netty 网络编程框架
-     */
+    @PostConstruct
     public static void netty() {
         HTTPServerHandler handler = new HTTPServerHandler();
         // 1. 创建 BossGroup 线程池 和 WorkerGroup 线程池, 其中维护 NioEventLoop 线程
@@ -90,6 +75,5 @@ public class IoHackathonApplication implements CommandLineRunner {
             workerGroup.shutdownGracefully();
         }
     }
-
 
 }
