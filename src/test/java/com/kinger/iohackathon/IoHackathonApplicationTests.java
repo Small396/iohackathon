@@ -22,7 +22,7 @@ class IoHackathonApplicationTests {
         if (log.isInfoEnabled()) {
             log.info("插入数据的id为：【{}】", user.getId());
         } else {
-            log.error("插入数据的id为：【{}】", user.getId());
+            log.error("23232插入数据的id为：【{}】", user.getId());
         }
     }
 
