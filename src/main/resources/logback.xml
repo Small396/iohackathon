@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds">
+    <!-- 日志记录器，日期滚动记录 -->
+    <appender name="STDOUT"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <!--encoder 默认配置为PatternLayoutEncoder -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger Line:%-3L - %msg%n</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+        <!--此日志appender是为开发使用，只配置最底级别，控制台输出的日志级别是大于或等于此级别的日志信息 -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>debug</level>
+        </filter>
+    </appender>
+
+    <appender name="WEBBQ" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--定义日志输出的路径 -->
+        <file>E:/logs/webbq.log</file>
+        <!--定义日志滚动的策略 -->
+        <rollingPolicy
+                class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--定义文件滚动时的文件名的格式 -->
+            <fileNamePattern>/logs/webbq.%d{yyyy-MM-dd.HH}.log.gz
+            </fileNamePattern>
+            <!--4天的时间周期，日志量最大10GB -->
+            <maxHistory>20</maxHistory>
+            <!-- 该属性在 1.1.6版本后 才开始支持 -->
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <triggeringPolicy
+                class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <!--每个日志文件最大50MB -->
+            <maxFileSize>50MB</maxFileSize>
+        </triggeringPolicy>
+        <!--定义输出格式 -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger Line:%-3L - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="trace"> <!--日志等级：trace、debug、info、warn、error、off-->
+        <appender-ref ref="WEBBQ" />
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>

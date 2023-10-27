@@ -33,6 +33,6 @@ netty:
   maxFrameLength: 10485760
   soBacklog: 1024
 
+# 日志配置地址
 logging:
-  level:
-    com.kinger.iohackathon: trace
+  config: classpath:logback.xml
